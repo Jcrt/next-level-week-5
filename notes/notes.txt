@@ -1,0 +1,15 @@
+palavras-chaves
+2: #embuscadoproximonivel
+
+-- integração de typescript para react e node
+yard add typescript @types/react @types/node -D
+
+-- dá pra ir olhar lá no NPM pra ver se tem integração.
+-- no caso do React, tem que instalar, no caso do next, não
+
+-- medida 'rem' é legal para acessibilidade, ela segue o padrão do sistema
+-- _document.tsx define o HTML que será renderizado pelo app (tipo um layout padrão) e é carregado uma única vez no inicio da execução
+-- & no css serve pra vc colocar uma condição especifica dentro de um componente. Ex: quero pegar uma div quando for de classe a, então div{ &.a {} }
+-- MAAAANO, o json-server é mt bom pra gnt testar coisas inclusive na SwF, porque a gnt consegue mockar uma API top
+
+-- parei na aula do dia 3 no 1:13
