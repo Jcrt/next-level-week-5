@@ -1,11 +1,15 @@
 import { GetStaticProps } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
+import { format, parseISO } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import Head from 'next/head';
+
 import { api } from '../services/api';
 import { HomeProps } from '../types/HomeProps';
-import { format, parseISO } from 'date-fns';
+import { usePlayer } from '../contexts/PlayerContext';
 import convertDurationToTimeString from '../utils/convertDurationToTimeString';
-import { ptBR } from 'date-fns/locale';
-import Link from 'next/link';
+
 import styles from './home.module.scss';
 
 export default function Home(props: HomeProps) {
@@ -16,13 +20,19 @@ export default function Home(props: HomeProps) {
   //     .then(response => console.log(response));
   // }, [])
 
+  const player = usePlayer();
+  const episodeList = [...props.latestEpisodes, ...props.allEpisodes];
+
   return (
     <div className={styles.homePage}>
+      <Head>
+        <title>Home | Podcastr { }</title>
+      </Head>
       <section className={styles.latestEpisodes}>
-        <h2>Últimos Lançamentos</h2>
+        <h2>Últimos Lançamentos:</h2>
         <ul>
-          {props.latestEpisodes.map(ep => {
-            return(
+          {props.latestEpisodes.map((ep, index) => {
+            return (
               <li key={ep.id}>
                 <Image width={192} height={192} src={ep.thumbnail} alt={ep.title} objectFit='cover' />
                 <div className={styles.episodeDetails}>
@@ -33,7 +43,7 @@ export default function Home(props: HomeProps) {
                 </div>
 
                 <button>
-                  <Image width={192} height={192} src='/play-green.svg' alt="Tocar episódio" objectFit='cover' />
+                  <Image width={192} height={192} src='/play-green.svg' alt="Tocar episódio" objectFit='cover' onClick={() => player.playList(episodeList, index)} />
                 </button>
               </li>
             )
@@ -54,10 +64,10 @@ export default function Home(props: HomeProps) {
             </tr>
           </thead>
           <tbody>
-            {props.allEpisodes.map(ep => {
-              return(
+            {props.allEpisodes.map((ep, index) => {
+              return (
                 <tr key={ep.id}>
-                  <td style={{width:72}}>
+                  <td style={{ width: 72 }}>
                     <Image width={120} height={120} src={ep.thumbnail} alt={ep.title} objectFit='cover' />
                   </td>
                   <td><Link href={`/episodes/${ep.id}`}>{ep.title}</Link></td>
@@ -65,11 +75,10 @@ export default function Home(props: HomeProps) {
                   <td style={{ width: 100 }}>{ep.publishedAt}</td>
                   <td>{ep.durationAsString}</td>
                   <td>
-                    <button type='button'>
+                    <button type='button' onClick={() => player.playList(episodeList, index + props.latestEpisodes.length)}>
                       <img src='/play-green.svg' alt='Tocar episódio' />
                     </button>
                   </td>
-                  
                 </tr>
               )
             })}
@@ -96,7 +105,7 @@ export default function Home(props: HomeProps) {
 export const getStaticProps: GetStaticProps = async () => {
   const { data } = await api.get('episodes', {
     params: {
-      _limit: 12, 
+      _limit: 12,
       _sort: 'published_at',
       _order: 'desc'
     }
@@ -106,12 +115,12 @@ export const getStaticProps: GetStaticProps = async () => {
     return {
       id: ep.id,
       title: ep.title,
-      thumbnail: ep.thumbnail, 
-      members: ep.members, 
+      thumbnail: ep.thumbnail,
+      members: ep.members,
       publishedAt: format(parseISO(ep.published_at), 'd MMM yy', { locale: ptBR }),
-      duration: Number(ep.file.duration), 
-      description: ep.description, 
-      durationAsString: convertDurationToTimeString(Number(ep.file.duration)), 
+      duration: Number(ep.file.duration),
+      description: ep.description,
+      durationAsString: convertDurationToTimeString(Number(ep.file.duration)),
       url: ep.file.url
     }
   })
@@ -121,9 +130,9 @@ export const getStaticProps: GetStaticProps = async () => {
 
   return {
     props: {
-      allEpisodes: episodes, 
+      allEpisodes: allEpisodes,
       latestEpisodes: latestEpisodes
-    }, 
+    },
     revalidate: 60 * 60 * 8
   };
 }

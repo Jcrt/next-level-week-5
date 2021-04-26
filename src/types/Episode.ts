@@ -5,7 +5,7 @@ export type Episode = {
   published_at: string;
   thumbnail: string;
   description: string;
-  duration: string;
+  duration: number;
   durationAsString: string;
   url: string;
   publishedAt: string;
